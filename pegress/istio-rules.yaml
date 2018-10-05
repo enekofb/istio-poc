@@ -1,0 +1,37 @@
+cat <<EOF | istioctl create -f -
+apiVersion: networking.istio.io/v1alpha3
+kind: ServiceEntry
+metadata:
+  name: google-ext
+spec:
+  hosts:
+  - www.google.com
+  ports:
+  - number: 80
+    name: http
+    protocol: HTTP
+EOF
+
+cat <<EOF | istioctl create -f -
+apiVersion: networking.istio.io/v1alpha3
+kind: ServiceEntry
+metadata:
+  name: google-ext-https
+spec:
+  hosts:
+  - www.google.com
+  ports:
+  - number: 443
+    name: https
+    protocol: HTTP
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: google-ext-https
+spec:
+  host: www.google.com
+  trafficPolicy:
+    tls:
+      mode: SIMPLE # initiates HTTPS when talking to www.google.com
+EOF

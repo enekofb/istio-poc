@@ -1,0 +1,13 @@
+apiVersion: kubeadm.k8s.io/v1alpha2
+kind: MasterConfiguration
+apiServerExtraArgs:
+  enable-admission-plugins: "AlwaysPullImages,NamespaceLifecycle,DenyEscalatingExec,LimitRanger,ServiceAccount,PodSecurityPolicy,ResourceQuota,NodeRestriction"
+  disable-admission-plugins: "AlwaysAdmit"
+  profiling: "false"
+  repair-malformed-updates: "false"
+  service-account-lookup: "true"
+controllerManagerExtraArgs:
+  profiling: "false"
+  terminated-pod-gc-threshold: "10"
+schedulerExtraArgs:
+  profiling: "false"
