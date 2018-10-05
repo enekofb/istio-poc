@@ -59,6 +59,7 @@ N.B: docker info has to show both seccomp and selinux enabled
 - Execute the script `sudo bash -x deploy-istio.sh`
 
 - Test provisioning has been done successfully 
+
 ```
 core@ip-10-16-129-204 ~ $ helm ls
 NAME 	REVISION	UPDATED                 	STATUS  	CHART      	NAMESPACE
@@ -211,9 +212,7 @@ Our objective: secure egress for that we have touched: 2,6,8,9,11
 
 ## 2: RBAC configuration
 
-## 6: 
-
-### OS
+## 6: OS
 
 - selinux `sestatus`
 - coreos
@@ -286,7 +285,7 @@ testing selinux not working with coreos
  
 `ip-10-16-129-167 core # ps -efZ | grep apiserver`
 
-### Docker
+## 6: Docker
 
 - Using Runtime profiles (seccomp , apparmor)
 
@@ -294,9 +293,11 @@ testing selinux not working with coreos
 
 - AppArmor not supported 
 
-### Kubernetes -> pod security policies
+## 6: Kubernetes
 
-### 8: non root containers
+- Using pod security policies
+
+## 8: non root containers
 
 - PodSecurityPolicy `single-node-cluster/scripts/deploy-pegress.sh`
 - SecurityContext
@@ -309,14 +310,11 @@ testing selinux not working with coreos
 
 ```
 
-#### 9: Network Policies
+## 9: Network Policies
 
 - Calico `kubectl apply -f https://docs.projectcalico.org/v3.1/getting-started/kubernetes/installation/hosted/kubeadm/1.7/calico.yaml`
    
-### 11: Service Mesh
+## 11: Service Mesh
 
 - Running istio 1.0.0 that proxies all application container 
     
-## 6. CIS kubernetes benchmark
-
-    kubectl run --rm -i -t kube-bench-master --image=aquasec/kube-bench:latest --restart=Never --overrides="{ \"apiVersion\": \"v1\", \"spec\": { \"hostPID\": true, \"tolerations\": [ { \"key\": \"node-role.kubernetes.io/master\", \"operator\": \"Exists\", \"effect\": \"NoSchedule\" } ] } }" -- master --version 1.8
