@@ -10,9 +10,8 @@
 
 - PodSecurityPolicies deployed to manage container security contexts 
 
-# Provision scenario
+# Provision VPC  
 
-## Provision Container Linux host 
 ````
 export AWS_PROFILE=enekofb
 cd $istio-poc/kubernetes
@@ -27,7 +26,9 @@ public_ip = 52.37.90.108
 ssh_user = core
 ```
 
-## Provision kubernetes
+# Provision Kubernetes
+
+1. Provision Single-node cluster
 
 - Execute the script `provision-single-node-kubernetes.sh` as root into the host `sudo bash -x provision-single-node-kubernetes.sh`
 
@@ -78,8 +79,7 @@ istio-telemetry-7d4f794c8d-vqjbj            2/2     Running   0          25s
 prometheus-6967c997cf-swkgw                 1/1     Running   0          25s
 ```
 
-
-## Provision pegress scenarios
+# Deploy the application (pegress)
 
 - Execute the script `deploy-pegress.sh`
 
@@ -96,26 +96,31 @@ google-ext   ServiceEntry.networking.istio.io.v1alpha3   default
 
 ```
 
-
 and check whether egress is working properly by curl pegress-* and having the same output
 
 ```
 core@ip-10-43-243-73 ~ $ kubectl get svc
 NAME                   TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)   AGE
 kubernetes             ClusterIP   10.96.0.1       <none>        443/TCP   13m
-pegress-alpine-istio   ClusterIP   10.99.212.172   <none>        80/TCP    8m36s
+pegress-alpine-istio   LoadBalancer   10.109.120.254   a414308f7c8f111e8873a0220346b082-2022439982.eu-west-1.elb.amazonaws.com   80:32225/TCP   24m
 ``` 
-for the three scenarios defined 
+
+check that the service is accesible internally via kubernetes svc  
 
 ```
-core@ip-10-16-129-204 ~ $ curl 10.97.136.196
-
-core@ip-10-16-129-204 ~ $ curl 10.111.14.33
+core@ip-10-16-129-204 ~ $ curl 10.109.120.254
 ```
+
+check that the service is externally accesible via AWS ELB  
+
+```
+➜  kubernetes git:(master) ✗ curl http://a414308f7c8f111e8873a0220346b082-2022439982.eu-west-1.elb.amazonaws.com
+```
+
 
 # Scenario acceptance 
 
-Accepntance testing script added that could be executed as follows
+Acceptance testing script added that could be executed as follows
 
 ```
 core@ip-10-43-243-73 ~ $ bash -x acceptance.sh

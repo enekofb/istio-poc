@@ -136,6 +136,7 @@ spec:
     name: http
   selector:
     app: pegress-alpine-istio
+  type: LoadBalancer
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment

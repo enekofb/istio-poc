@@ -1,6 +1,7 @@
 apiVersion: kubeadm.k8s.io/v1alpha2
 kind: MasterConfiguration
 apiServerExtraArgs:
+  cloud-provider: "aws"
   enable-admission-plugins: "AlwaysPullImages,NamespaceLifecycle,DenyEscalatingExec,LimitRanger,ServiceAccount,PodSecurityPolicy,ResourceQuota,NodeRestriction"
   disable-admission-plugins: "AlwaysAdmit"
   profiling: "false"
@@ -9,5 +10,6 @@ apiServerExtraArgs:
 controllerManagerExtraArgs:
   profiling: "false"
   terminated-pod-gc-threshold: "10"
+  cloud-provider: "aws"
 schedulerExtraArgs:
   profiling: "false"
