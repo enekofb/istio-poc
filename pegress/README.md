@@ -20,9 +20,3 @@ curl -vk http://{POD_iP}:8080/
 
 curl -vk http://{SERVICE_IP}:80/
 ```
-
-
-Pending:
-
-- to allow ingress traffic from the outside
-

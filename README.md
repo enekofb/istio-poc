@@ -1,16 +1,25 @@
 # Scenario
 
 - Single node kubernetes cluster
+
+- Dummy go application deployed into the cluster
  
-- Host running Container Linux 
+- Host running Container Linux (CoreOS) 
 
 - Selinux enforcing mode in the host
+
+- Seccomp enabled at Docker runtime
 
 - Istio running for egress functionality
 
 - PodSecurityPolicies deployed to manage container security contexts 
 
+- This scenario does not tend to be production-ready but a scenario where to do simple experiments.
+
 # Provision VPC  
+
+Terraform has been used to provision a VPC and the EC2 instance hosting the kube cluster. The following 
+snippet specifies how to provisions the infrastructure via Terraform
 
 ````
 export AWS_PROFILE=enekofb
@@ -22,17 +31,26 @@ terraform apply
 as a result 
 
 ```
-public_ip = 52.37.90.108
+public_ip = 18.202.130.41
 ssh_user = core
 ```
 
+- By using Terraform Workspaces is direct to get different environments based on the same [configuration](https://www.terraform.io/docs/state/workspaces.html)   
+
+```
+    terraform workspace create production 
+    terraform workspace select staging
+```
+
 # Provision Kubernetes
+
+0. Copy the scripts into the host via scp `scp scripts/* core@18.202.130.41:/home/core`
 
 1. Provision Single-node cluster
 
 - Execute the script `provision-single-node-kubernetes.sh` as root into the host `sudo bash -x provision-single-node-kubernetes.sh`
 
-- Test provisioning has been done successfully 
+- Check provisioning has been done successfully 
 
 ```
 core@ip-10-16-129-204 ~ $ sestatus
@@ -56,9 +74,9 @@ N.B: docker info has to show both seccomp and selinux enabled
 
 2. Provision istio
 
-- Execute the script `sudo bash -x deploy-istio.sh`
+- Execute the script `sudo bash -x deploy-istio.sh` to provision `helm` and `istio`
 
-- Test provisioning has been done successfully 
+- Check provisioning has been done successfully 
 
 ```
 core@ip-10-16-129-204 ~ $ helm ls
@@ -82,9 +100,29 @@ prometheus-6967c997cf-swkgw                 1/1     Running   0          25s
 
 # Deploy the application (pegress)
 
-- Execute the script `deploy-pegress.sh`
+The target application is a simple golang web server that listens in 8080 port and replies google.com page when requested 
+the root path. 
 
-- Test provisioning has been done successfully 
+```
+func main() {
+	http.HandleFunc("/", func (w http.ResponseWriter, r *http.Request) {
+
+		resp, err := http.Get("http://www.google.com")
+		if err != nil {
+			panic(err)
+		}
+		defer resp.Body.Close()
+		body, err := ioutil.ReadAll(resp.Body)
+		fmt.Fprintf(w, string(body))
+	})
+
+	http.ListenAndServe(":8080", handlers.LoggingHandler(os.Stdout, http.DefaultServeMux))
+}
+```
+
+The code lives in [pegress](./pegress).
+
+In order to provision the application executes the script `deploy-pegress.sh` and check that provisioning has been done successfully 
 
 ```
 core@ip-10-16-129-204 ~ $ kubectl get pods
@@ -106,32 +144,27 @@ kubernetes             ClusterIP   10.96.0.1       <none>        443/TCP   13m
 pegress-alpine-istio   LoadBalancer   10.109.120.254   a414308f7c8f111e8873a0220346b082-2022439982.eu-west-1.elb.amazonaws.com   80:32225/TCP   24m
 ``` 
 
-check that the service is accesible internally via kubernetes svc  
+check that the service is reachable internally via kubernetes svc cluster ip 
 
 ```
 core@ip-10-16-129-204 ~ $ curl 10.109.120.254
 ```
 
-check that the service is externally accesible via AWS ELB  
+check that the service is externally reachable via AWS ELB  
 
 ```
 ➜  kubernetes git:(master) ✗ curl http://a414308f7c8f111e8873a0220346b082-2022439982.eu-west-1.elb.amazonaws.com
 ```
 
-
 # Scenario acceptance 
 
-Acceptance testing script added that could be executed as follows
+In addition to the provision scripts an acceptance testing script has been shipped to verify
+the scenario setup. It could be executed by `bash -x acceptance.sh` . It tests that ...
 
-```
-core@ip-10-43-243-73 ~ $ bash -x acceptance.sh
-```
-
-it tests that ...
-
-1. Seccomp test
-2. PodSecurityPolicies are enabled
-3. Secure egress is setup via Istio
+1. Kubernetes scenario with limited permissions
+2. Seccomp test
+3. PodSecurityPolicies are enabled
+4. Secure egress is setup via Istio
 
 ```
 core@ip-10-43-243-73 ~ $ bash -x acceptance.sh
@@ -182,11 +215,11 @@ Use 'kubectl describe pod/pegress-alpine-istio-56749cc498-9rdrx -n default' to s
 Egreess not bypassed
 ```
 
-# Kube security and egress
+# Scenario hardened 
 
-An approach to kubernetes security based on the following post
-
-    https://kubernetes.io/blog/2018/07/18/11-ways-not-to-get-hacked/
+The previous scenario has been iterated to incorporate security features around the different levels
+ of the stack.  If we take as reference the following [post](https://kubernetes.io/blog/2018/07/18/11-ways-not-to-get-hacked/) that defines
+the following eleven topics.
 
 Part One: The Control Plane
 
@@ -208,14 +241,25 @@ Part Three: The Future
 
     11. Run a Service Mesh
     
-Our objective: secure egress for that we have touched: 2,6,8,9,11
+We could say that the scenario incorporated 2,6,8,9,11 as reported below
 
 ## 2: RBAC configuration
 
+By setting up RBAC in the api server
+
+```
+     },
+            "Image": "sha256:dcb029b5e3ad1b17b4671a2b2b56983cdba39ce40f35a1bdd6e3a5492df789d3",
+            "Volumes": null,
+            "WorkingDir": "",
+            "Entrypoint": [
+                "kube-apiserver",
+                "--authorization-mode=Node,RBAC",
+```
+
 ## 6: OS
 
-- selinux `sestatus`
-- coreos
+Using CoreOS (Container Linux) that is an inmutable linux distro and enabling iptables on it
 
 ```
 ip-10-16-129-167 core # cat /etc/os-release
@@ -230,7 +274,9 @@ HOME_URL="https://coreos.com/"
 BUG_REPORT_URL="https://issues.coreos.com"
 COREOS_BOARD="amd64-usr"
 ```
-- coreos and seleniux https://github.com/coreos/bugs/issues/2421
+
+- coreos and selinux https://github.com/coreos/bugs/issues/2421
+
 ```
 ip-10-16-129-167 core # docker info
 Containers: 97
@@ -281,21 +327,75 @@ Insecure Registries:
 Live Restore Enabled: false
 ```
 
-testing selinux not working with coreos
- 
-`ip-10-16-129-167 core # ps -efZ | grep apiserver`
-
 ## 6: Docker
 
-- Using Runtime profiles (seccomp , apparmor)
+By enabling Seccomp runtime profile 
+
+```
+ip-10-16-129-167 core # docker info
+...
+
+Security Options:
+ seccomp
+  Profile: default
+ selinux
+```
+
 
 - CoreOS only uses seccomp `https://github.com/moby/moby/blob/master/profiles/seccomp/default.json`
 
-- AppArmor not supported 
+- AppArmor not supported in CoreOS
 
 ## 6: Kubernetes
 
-- Using pod security policies
+- Using pod security policies for both priviledged and non privileged workloads
+
+```
+apiVersion: policy/v1beta1
+kind: PodSecurityPolicy
+metadata:
+  name: restricted-custom
+  annotations:
+    seccomp.security.alpha.kubernetes.io/allowedProfileNames: 'docker/default'
+    seccomp.security.alpha.kubernetes.io/defaultProfileName:  'docker/default'
+spec:
+  privileged: false
+  # Required to prevent escalations to root.
+  allowPrivilegeEscalation: false
+  allowedCapabilities:
+  - NET_ADMIN
+  # Allow core volume types.
+  volumes:
+    - 'configMap'
+    - 'emptyDir'
+    - 'projected'
+    - 'secret'
+    - 'downwardAPI'
+    # Assume that persistentVolumes set up by the cluster admin are safe to use.
+    - 'persistentVolumeClaim'
+  hostNetwork: false
+  hostIPC: false
+  hostPID: false
+  runAsUser:
+    # Require the container to run without root privileges.
+    rule: 'RunAsAny' ##  TODO: REMOVE ME NOTE THAT THIS IS BEACAUSE OF ISTIO PROXY
+  seLinux:
+    # This policy assumes the nodes are using AppArmor rather than SELinux.
+    rule: 'RunAsAny'
+  supplementalGroups:
+    rule: 'MustRunAs'
+    ranges:
+      # Forbid adding the root group.
+      - min: 1
+        max: 65535
+  fsGroup:
+    rule: 'MustRunAs'
+    ranges:
+      # Forbid adding the root group.
+      - min: 1
+        max: 65535
+  readOnlyRootFilesystem: false
+```
 
 ## 8: non root containers
 

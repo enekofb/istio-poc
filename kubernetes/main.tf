@@ -245,19 +245,3 @@ resource "aws_eip_association" "host-egress-assoc" {
   allocation_id = "${aws_eip.host-egress.id}"
 }
 
-//#####
-//# DNS record
-//#####
-//
-//data "aws_route53_zone" "dns-zone" {
-//  name         = "${var.hosted_zone}."
-//  private_zone = "${var.hosted_zone_private}"
-//}
-//
-//resource "aws_route53_record" "host-egress" {
-//  zone_id = "${data.aws_route53_zone.dns-zone.zone_id}"
-//  name    = "${var.cluster_name}.${var.hosted_zone}"
-//  type    = "A"
-//  records = ["${aws_eip.host-egress.public_ip}"]
-//  ttl     = 300
-//}
