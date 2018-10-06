@@ -245,3 +245,13 @@ resource "aws_eip_association" "host-egress-assoc" {
   allocation_id = "${aws_eip.host-egress.id}"
 }
 
+resource "aws_route53_zone" "external" {
+  name = "enekofb.org"
+}
+
+resource "aws_route53_record" "pegress" {
+  name    = "pegress.enekofb.org"
+  type    = "CNAME"
+  zone_id = "${aws_route53_zone.external.zone_id}"
+  ttl     = "60"
+}
