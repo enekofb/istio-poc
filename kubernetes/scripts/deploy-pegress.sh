@@ -254,6 +254,21 @@ spec:
           secretName: istio.default
 EOF
 
+cat <<EOF | kubectl apply -f  -
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: pegress-alpine-istio
+  namespace: default
+spec:
+  maxReplicas: 5
+  minReplicas: 1
+  scaleTargetRef:
+    apiVersion: extensions/v1beta1
+    kind: Deployment
+    name: pegress-alpine-istio
+  targetCPUUtilizationPercentage: 75
+EOF
 
 #https://github.com/kubernetes/kubernetes/issues/64479
 mkdir -p /home/core/.certs

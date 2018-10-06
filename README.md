@@ -122,7 +122,15 @@ func main() {
 
 The code lives in [pegress](./pegress).
 
-In order to provision the application executes the script `deploy-pegress.sh` and check that provisioning has been done successfully 
+In order to provision the application executes the script `deploy-pegress.sh` that deploys the following resources
+
+
+- PodSecurityPolicy `resitrcted-custom` to control application behavior. It also brings ClusterRole and RolebBindings to use the PSP.
+- Istio `ServiceEntry` to whitelist `google.com` so the app can use it.
+- Kubernetes Deployment and Service for the application. It includes istio as sidecar.
+- Kubernetes HorizontalPodAutoscaler to manage deployment autoscaling. Set to CPU target of 75%
+
+And check that provisioning has been done successfully 
 
 ```
 core@ip-10-16-129-204 ~ $ kubectl get pods
