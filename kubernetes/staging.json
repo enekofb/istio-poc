@@ -1,0 +1,975 @@
+{
+    "version": 3,
+    "terraform_version": "0.11.8",
+    "serial": 22,
+    "lineage": "e64dc98b-141c-a59a-6289-6973c7c5f88f",
+    "modules": [
+        {
+            "path": [
+                "root"
+            ],
+            "outputs": {
+                "public_ip": {
+                    "sensitive": false,
+                    "type": "string",
+                    "value": "54.76.167.108"
+                },
+                "ssh_user": {
+                    "sensitive": false,
+                    "type": "string",
+                    "value": "core"
+                }
+            },
+            "resources": {
+                "aws_eip.host-egress": {
+                    "type": "aws_eip",
+                    "depends_on": [],
+                    "primary": {
+                        "id": "eipalloc-0d80fb8998ae32e0e",
+                        "attributes": {
+                            "association_id": "eipassoc-0bdfcb48bce99900c",
+                            "domain": "vpc",
+                            "id": "eipalloc-0d80fb8998ae32e0e",
+                            "instance": "i-00ba939e0f519ba7e",
+                            "network_interface": "eni-05f311451b3f316e2",
+                            "private_ip": "10.0.4.222",
+                            "public_ip": "54.76.167.108",
+                            "tags.%": "0",
+                            "vpc": "true"
+                        },
+                        "meta": {
+                            "e2bfb730-ecaa-11e6-8f88-34363bc7c4c0": {
+                                "delete": 180000000000,
+                                "read": 900000000000,
+                                "update": 300000000000
+                            }
+                        },
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": "provider.aws"
+                },
+                "aws_eip.ngw-eip": {
+                    "type": "aws_eip",
+                    "depends_on": [],
+                    "primary": {
+                        "id": "eipalloc-0c3ca4ddc52622edb",
+                        "attributes": {
+                            "association_id": "eipassoc-efd44813",
+                            "domain": "vpc",
+                            "id": "eipalloc-0c3ca4ddc52622edb",
+                            "instance": "",
+                            "network_interface": "eni-02251f7bb7eb3ecff",
+                            "private_ip": "10.0.1.44",
+                            "public_ip": "52.48.138.233",
+                            "tags.%": "0",
+                            "vpc": "true"
+                        },
+                        "meta": {
+                            "e2bfb730-ecaa-11e6-8f88-34363bc7c4c0": {
+                                "delete": 180000000000,
+                                "read": 900000000000,
+                                "update": 300000000000
+                            }
+                        },
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": "provider.aws"
+                },
+                "aws_eip_association.host-egress-assoc": {
+                    "type": "aws_eip_association",
+                    "depends_on": [
+                        "aws_eip.host-egress",
+                        "aws_instance.host-egress"
+                    ],
+                    "primary": {
+                        "id": "eipassoc-0a3aab127a8f63ce7",
+                        "attributes": {
+                            "allocation_id": "eipalloc-0d80fb8998ae32e0e",
+                            "id": "eipassoc-0a3aab127a8f63ce7",
+                            "instance_id": "i-05e207569bff8f314",
+                            "network_interface_id": "eni-00ca5c156536e0e65",
+                            "private_ip_address": "10.0.1.140",
+                            "public_ip": "54.76.167.108"
+                        },
+                        "meta": {},
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": "provider.aws"
+                },
+                "aws_iam_instance_profile.host-egress-profile": {
+                    "type": "aws_iam_instance_profile",
+                    "depends_on": [
+                        "aws_iam_role.host-egress-role"
+                    ],
+                    "primary": {
+                        "id": "egress",
+                        "attributes": {
+                            "arn": "arn:aws:iam::777171359344:instance-profile/egress",
+                            "create_date": "2018-10-07T19:07:06Z",
+                            "id": "egress",
+                            "name": "egress",
+                            "path": "/",
+                            "role": "egress",
+                            "roles.#": "1",
+                            "roles.2162032504": "egress",
+                            "unique_id": "AIPAIBFVPMVVHGQ3ZQYIQ"
+                        },
+                        "meta": {},
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": "provider.aws"
+                },
+                "aws_iam_policy.host-egress-policy": {
+                    "type": "aws_iam_policy",
+                    "depends_on": [
+                        "data.template_file.policy-json"
+                    ],
+                    "primary": {
+                        "id": "arn:aws:iam::777171359344:policy/egress",
+                        "attributes": {
+                            "arn": "arn:aws:iam::777171359344:policy/egress",
+                            "description": "Policy for role egress",
+                            "id": "arn:aws:iam::777171359344:policy/egress",
+                            "name": "egress",
+                            "path": "/",
+                            "policy": "{\n    \"Version\": \"2012-10-17\",\n    \"Statement\": [\n        {\n            \"Effect\": \"Allow\",\n            \"Action\": [\n                \"ec2:*\",\n                \"elasticloadbalancing:*\",\n                \"ecr:GetAuthorizationToken\",\n                \"ecr:BatchCheckLayerAvailability\",\n                \"ecr:GetDownloadUrlForLayer\",\n                \"ecr:GetRepositoryPolicy\",\n                \"ecr:DescribeRepositories\",\n                \"ecr:ListImages\",\n                \"ecr:BatchGetImage\",\n                \"route53:GetHostedZone\",\n                \"route53:ListHostedZones\",\n                \"route53:ListHostedZonesByName\",\n                \"route53:ChangeResourceRecordSets\",\n                \"route53:ListResourceRecordSets\",\n                \"route53:GetChange\"\n                ],\n            \"Resource\": \"*\"\n        }\n    ]\n}\n"
+                        },
+                        "meta": {},
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": "provider.aws"
+                },
+                "aws_iam_policy_attachment.host-egress-attach": {
+                    "type": "aws_iam_policy_attachment",
+                    "depends_on": [
+                        "aws_iam_policy.host-egress-policy",
+                        "aws_iam_role.host-egress-role"
+                    ],
+                    "primary": {
+                        "id": "host-egress-attachment",
+                        "attributes": {
+                            "groups.#": "0",
+                            "id": "host-egress-attachment",
+                            "name": "host-egress-attachment",
+                            "policy_arn": "arn:aws:iam::777171359344:policy/egress",
+                            "roles.#": "1",
+                            "roles.2162032504": "egress",
+                            "users.#": "0"
+                        },
+                        "meta": {},
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": "provider.aws"
+                },
+                "aws_iam_role.host-egress-role": {
+                    "type": "aws_iam_role",
+                    "depends_on": [],
+                    "primary": {
+                        "id": "egress",
+                        "attributes": {
+                            "arn": "arn:aws:iam::777171359344:role/egress",
+                            "assume_role_policy": "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Sid\":\"\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"ec2.amazonaws.com\"},\"Action\":\"sts:AssumeRole\"}]}",
+                            "create_date": "2018-10-07T19:07:05Z",
+                            "description": "",
+                            "force_detach_policies": "false",
+                            "id": "egress",
+                            "max_session_duration": "3600",
+                            "name": "egress",
+                            "path": "/",
+                            "unique_id": "AROAJTIKGRYLOY75BO636"
+                        },
+                        "meta": {},
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": "provider.aws"
+                },
+                "aws_instance.host-egress": {
+                    "type": "aws_instance",
+                    "depends_on": [
+                        "aws_iam_instance_profile.host-egress-profile",
+                        "aws_key_pair.host-egress-keypair",
+                        "aws_security_group.kubernetes",
+                        "aws_subnet.public"
+                    ],
+                    "primary": {
+                        "id": "i-05e207569bff8f314",
+                        "attributes": {
+                            "ami": "ami-099b2d1bdd27b4649",
+                            "arn": "arn:aws:ec2:eu-west-1:777171359344:instance/i-05e207569bff8f314",
+                            "associate_public_ip_address": "true",
+                            "availability_zone": "eu-west-1a",
+                            "cpu_core_count": "2",
+                            "cpu_threads_per_core": "1",
+                            "credit_specification.#": "1",
+                            "credit_specification.0.cpu_credits": "standard",
+                            "disable_api_termination": "false",
+                            "ebs_block_device.#": "0",
+                            "ebs_optimized": "false",
+                            "ephemeral_block_device.#": "0",
+                            "get_password_data": "false",
+                            "iam_instance_profile": "egress",
+                            "id": "i-05e207569bff8f314",
+                            "instance_state": "running",
+                            "instance_type": "t2.medium",
+                            "ipv6_addresses.#": "0",
+                            "key_name": "egress",
+                            "monitoring": "false",
+                            "network_interface.#": "0",
+                            "network_interface_id": "eni-00ca5c156536e0e65",
+                            "password_data": "",
+                            "placement_group": "",
+                            "primary_network_interface_id": "eni-00ca5c156536e0e65",
+                            "private_dns": "ip-10-0-1-140.eu-west-1.compute.internal",
+                            "private_ip": "10.0.1.140",
+                            "public_dns": "ec2-54-229-173-132.eu-west-1.compute.amazonaws.com",
+                            "public_ip": "54.229.173.132",
+                            "root_block_device.#": "1",
+                            "root_block_device.0.delete_on_termination": "true",
+                            "root_block_device.0.iops": "150",
+                            "root_block_device.0.volume_id": "vol-0374bbeffd71210bb",
+                            "root_block_device.0.volume_size": "50",
+                            "root_block_device.0.volume_type": "gp2",
+                            "security_groups.#": "0",
+                            "source_dest_check": "true",
+                            "subnet_id": "subnet-076d0ee92c56367a3",
+                            "tags.%": "5",
+                            "tags.Application": "egress",
+                            "tags.Environment": "test",
+                            "tags.LaunchedBy": "terraform",
+                            "tags.Name": "egress",
+                            "tags.kubernetes.io/cluster/egress": "owned",
+                            "tenancy": "default",
+                            "volume_tags.%": "0",
+                            "vpc_security_group_ids.#": "1",
+                            "vpc_security_group_ids.1926019929": "sg-0fb726ecd1916e561"
+                        },
+                        "meta": {
+                            "e2bfb730-ecaa-11e6-8f88-34363bc7c4c0": {
+                                "create": 600000000000,
+                                "delete": 1200000000000,
+                                "update": 600000000000
+                            },
+                            "schema_version": "1"
+                        },
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": "provider.aws"
+                },
+                "aws_internet_gateway.igw": {
+                    "type": "aws_internet_gateway",
+                    "depends_on": [
+                        "aws_vpc.kubernetes"
+                    ],
+                    "primary": {
+                        "id": "igw-0941f8b2573a735b1",
+                        "attributes": {
+                            "id": "igw-0941f8b2573a735b1",
+                            "tags.%": "2",
+                            "tags.Name": "Internet Gateway",
+                            "tags.Owner": "Kubernetes",
+                            "vpc_id": "vpc-05e0ecb5f8d08b870"
+                        },
+                        "meta": {},
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": "provider.aws"
+                },
+                "aws_key_pair.host-egress-keypair": {
+                    "type": "aws_key_pair",
+                    "depends_on": [],
+                    "primary": {
+                        "id": "egress",
+                        "attributes": {
+                            "fingerprint": "9e:dd:76:f8:4e:cb:f7:3b:4d:50:97:98:35:dc:1f:de",
+                            "id": "egress",
+                            "key_name": "egress",
+                            "public_key": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDP6bPuPHqP5aeKljKzlkrVQNYN4jbMei03IzhBVLkQYr1MGCvr0W28186U+eIgqDeNJcDCz7/nQvolBkMZkpzfNFGDQ0hhaT/9VE+EaVz3c9/ndT1EsLaGl4zotMZYXvsVBTmPtZQuKAQ1TJX/Be6tDj1lhxk7cu5S1a/URDYLBuVdhk8hyV3uHx+tVfGFqM/3n8AB+0VLHGcbi0fcnsE7mE82lQE6anG7PboPYgU3zvMMKw97gdiQ9/Ytfdc/wbrtLiEobkOuuziIUEnilZwd6qNmPspibdQyIsYtgfmWskipQDfPyOxt5cs2U4hEkYhsIJ1qwXqxnodUy7XNnAn69/MOQvTCakBPdNN+TQHjJ+fJRH/WbRksI6xe6+Xex0nlLPuFqg+f1PoEBQSHg1dUHNELXkKLjCFVs05TIDW0RzkvtA0in4RN1/UkZNIWOmOUerGFs2wgP0H6Ixgghg5Eq17ZNy6o8hSt5NOZQ4JPmvtOqWYPlSqHjPFtBaO1wDl9BIoHkqgU1bhnbRRlEKsV1EY6F2vFz8XbyVCHXRQqrLdtT1yuE4lqyk8y5lv4OxG9OZF+jXW9/jkNeh7T0TbCqGnTY8azXpgQktpOnbYVpF5fE1mZh2J2VxF+h14LP+MnrWee9PCREDDiOq8PAKn0TzOxeGy9VrnmAAqdLnGb0w== efernandezbrei@LONC02TNDMNG8WN.sea.corp.expecn.com"
+                        },
+                        "meta": {
+                            "schema_version": "1"
+                        },
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": "provider.aws"
+                },
+                "aws_nat_gateway.ngw": {
+                    "type": "aws_nat_gateway",
+                    "depends_on": [
+                        "aws_eip.ngw-eip",
+                        "aws_subnet.public"
+                    ],
+                    "primary": {
+                        "id": "nat-0b0ca3f02da0fa817",
+                        "attributes": {
+                            "allocation_id": "eipalloc-0c3ca4ddc52622edb",
+                            "id": "nat-0b0ca3f02da0fa817",
+                            "network_interface_id": "eni-02251f7bb7eb3ecff",
+                            "private_ip": "10.0.1.44",
+                            "public_ip": "52.48.138.233",
+                            "subnet_id": "subnet-076d0ee92c56367a3",
+                            "tags.%": "2",
+                            "tags.Name": "Nat Gateway",
+                            "tags.Owner": "Kubernetes"
+                        },
+                        "meta": {},
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": "provider.aws"
+                },
+                "aws_route53_zone.external": {
+                    "type": "aws_route53_zone",
+                    "depends_on": [],
+                    "primary": {
+                        "id": "Z2XH7V9NVHUFPU",
+                        "attributes": {
+                            "comment": "Managed by Terraform",
+                            "force_destroy": "false",
+                            "id": "Z2XH7V9NVHUFPU",
+                            "name": "staging.enekofb.org",
+                            "name_servers.#": "4",
+                            "name_servers.0": "ns-1025.awsdns-00.org",
+                            "name_servers.1": "ns-1790.awsdns-31.co.uk",
+                            "name_servers.2": "ns-197.awsdns-24.com",
+                            "name_servers.3": "ns-615.awsdns-12.net",
+                            "tags.%": "0",
+                            "zone_id": "Z2XH7V9NVHUFPU"
+                        },
+                        "meta": {},
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": "provider.aws"
+                },
+                "aws_route_table.private": {
+                    "type": "aws_route_table",
+                    "depends_on": [
+                        "aws_nat_gateway.ngw",
+                        "aws_vpc.kubernetes"
+                    ],
+                    "primary": {
+                        "id": "rtb-03d01f9685d00fe8f",
+                        "attributes": {
+                            "id": "rtb-03d01f9685d00fe8f",
+                            "propagating_vgws.#": "0",
+                            "route.#": "1",
+                            "route.3532003989.cidr_block": "0.0.0.0/0",
+                            "route.3532003989.egress_only_gateway_id": "",
+                            "route.3532003989.gateway_id": "",
+                            "route.3532003989.instance_id": "",
+                            "route.3532003989.ipv6_cidr_block": "",
+                            "route.3532003989.nat_gateway_id": "nat-0b0ca3f02da0fa817",
+                            "route.3532003989.network_interface_id": "",
+                            "route.3532003989.vpc_peering_connection_id": "",
+                            "tags.%": "2",
+                            "tags.Name": "kubernetes",
+                            "tags.Owner": "Kubernetes",
+                            "vpc_id": "vpc-05e0ecb5f8d08b870"
+                        },
+                        "meta": {},
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": "provider.aws"
+                },
+                "aws_route_table.public": {
+                    "type": "aws_route_table",
+                    "depends_on": [
+                        "aws_internet_gateway.igw",
+                        "aws_vpc.kubernetes"
+                    ],
+                    "primary": {
+                        "id": "rtb-07e09977b33af8ff7",
+                        "attributes": {
+                            "id": "rtb-07e09977b33af8ff7",
+                            "propagating_vgws.#": "0",
+                            "route.#": "1",
+                            "route.435081634.cidr_block": "0.0.0.0/0",
+                            "route.435081634.egress_only_gateway_id": "",
+                            "route.435081634.gateway_id": "igw-0941f8b2573a735b1",
+                            "route.435081634.instance_id": "",
+                            "route.435081634.ipv6_cidr_block": "",
+                            "route.435081634.nat_gateway_id": "",
+                            "route.435081634.network_interface_id": "",
+                            "route.435081634.vpc_peering_connection_id": "",
+                            "tags.%": "2",
+                            "tags.Name": "kubernetes",
+                            "tags.Owner": "Kubernetes",
+                            "vpc_id": "vpc-05e0ecb5f8d08b870"
+                        },
+                        "meta": {},
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": "provider.aws"
+                },
+                "aws_route_table_association.private.0": {
+                    "type": "aws_route_table_association",
+                    "depends_on": [
+                        "aws_route_table.private",
+                        "data.aws_subnet_ids.private"
+                    ],
+                    "primary": {
+                        "id": "rtbassoc-0cdc7307a488456c5",
+                        "attributes": {
+                            "id": "rtbassoc-0cdc7307a488456c5",
+                            "route_table_id": "rtb-03d01f9685d00fe8f",
+                            "subnet_id": "subnet-0983509ad4b66d783"
+                        },
+                        "meta": {},
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": "provider.aws"
+                },
+                "aws_route_table_association.private.1": {
+                    "type": "aws_route_table_association",
+                    "depends_on": [
+                        "aws_route_table.private",
+                        "data.aws_subnet_ids.private"
+                    ],
+                    "primary": {
+                        "id": "rtbassoc-047bbcc2960e10f4b",
+                        "attributes": {
+                            "id": "rtbassoc-047bbcc2960e10f4b",
+                            "route_table_id": "rtb-03d01f9685d00fe8f",
+                            "subnet_id": "subnet-02aaeedb3a697870d"
+                        },
+                        "meta": {},
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": "provider.aws"
+                },
+                "aws_route_table_association.private.2": {
+                    "type": "aws_route_table_association",
+                    "depends_on": [
+                        "aws_route_table.private",
+                        "data.aws_subnet_ids.private"
+                    ],
+                    "primary": {
+                        "id": "rtbassoc-0cb06422909ffe112",
+                        "attributes": {
+                            "id": "rtbassoc-0cb06422909ffe112",
+                            "route_table_id": "rtb-03d01f9685d00fe8f",
+                            "subnet_id": "subnet-0531b4ef74afaad3f"
+                        },
+                        "meta": {},
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": "provider.aws"
+                },
+                "aws_route_table_association.public.0": {
+                    "type": "aws_route_table_association",
+                    "depends_on": [
+                        "aws_route_table.public",
+                        "data.aws_subnet_ids.public"
+                    ],
+                    "primary": {
+                        "id": "rtbassoc-0938a1ab41ec60f02",
+                        "attributes": {
+                            "id": "rtbassoc-0938a1ab41ec60f02",
+                            "route_table_id": "rtb-07e09977b33af8ff7",
+                            "subnet_id": "subnet-076d0ee92c56367a3"
+                        },
+                        "meta": {},
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": "provider.aws"
+                },
+                "aws_route_table_association.public.1": {
+                    "type": "aws_route_table_association",
+                    "depends_on": [
+                        "aws_route_table.public",
+                        "data.aws_subnet_ids.public"
+                    ],
+                    "primary": {
+                        "id": "rtbassoc-039018e73d2874ac3",
+                        "attributes": {
+                            "id": "rtbassoc-039018e73d2874ac3",
+                            "route_table_id": "rtb-07e09977b33af8ff7",
+                            "subnet_id": "subnet-06b96e084c4e08d5f"
+                        },
+                        "meta": {},
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": "provider.aws"
+                },
+                "aws_route_table_association.public.2": {
+                    "type": "aws_route_table_association",
+                    "depends_on": [
+                        "aws_route_table.public",
+                        "data.aws_subnet_ids.public"
+                    ],
+                    "primary": {
+                        "id": "rtbassoc-0e5be252269a8e02b",
+                        "attributes": {
+                            "id": "rtbassoc-0e5be252269a8e02b",
+                            "route_table_id": "rtb-07e09977b33af8ff7",
+                            "subnet_id": "subnet-010d64bf98cf83752"
+                        },
+                        "meta": {},
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": "provider.aws"
+                },
+                "aws_security_group.kubernetes": {
+                    "type": "aws_security_group",
+                    "depends_on": [
+                        "aws_vpc.kubernetes"
+                    ],
+                    "primary": {
+                        "id": "sg-0fb726ecd1916e561",
+                        "attributes": {
+                            "arn": "arn:aws:ec2:eu-west-1:777171359344:security-group/sg-0fb726ecd1916e561",
+                            "description": "Managed by Terraform",
+                            "egress.#": "1",
+                            "egress.482069346.cidr_blocks.#": "1",
+                            "egress.482069346.cidr_blocks.0": "0.0.0.0/0",
+                            "egress.482069346.description": "",
+                            "egress.482069346.from_port": "0",
+                            "egress.482069346.ipv6_cidr_blocks.#": "0",
+                            "egress.482069346.prefix_list_ids.#": "0",
+                            "egress.482069346.protocol": "-1",
+                            "egress.482069346.security_groups.#": "0",
+                            "egress.482069346.self": "false",
+                            "egress.482069346.to_port": "0",
+                            "id": "sg-0fb726ecd1916e561",
+                            "ingress.#": "4",
+                            "ingress.1589046286.cidr_blocks.#": "1",
+                            "ingress.1589046286.cidr_blocks.0": "165.225.81.22/32",
+                            "ingress.1589046286.description": "",
+                            "ingress.1589046286.from_port": "8",
+                            "ingress.1589046286.ipv6_cidr_blocks.#": "0",
+                            "ingress.1589046286.prefix_list_ids.#": "0",
+                            "ingress.1589046286.protocol": "icmp",
+                            "ingress.1589046286.security_groups.#": "0",
+                            "ingress.1589046286.self": "false",
+                            "ingress.1589046286.to_port": "0",
+                            "ingress.1960698028.cidr_blocks.#": "1",
+                            "ingress.1960698028.cidr_blocks.0": "10.0.0.0/16",
+                            "ingress.1960698028.description": "",
+                            "ingress.1960698028.from_port": "0",
+                            "ingress.1960698028.ipv6_cidr_blocks.#": "0",
+                            "ingress.1960698028.prefix_list_ids.#": "0",
+                            "ingress.1960698028.protocol": "-1",
+                            "ingress.1960698028.security_groups.#": "0",
+                            "ingress.1960698028.self": "false",
+                            "ingress.1960698028.to_port": "0",
+                            "ingress.3132284652.cidr_blocks.#": "1",
+                            "ingress.3132284652.cidr_blocks.0": "165.225.81.22/32",
+                            "ingress.3132284652.description": "",
+                            "ingress.3132284652.from_port": "0",
+                            "ingress.3132284652.ipv6_cidr_blocks.#": "0",
+                            "ingress.3132284652.prefix_list_ids.#": "0",
+                            "ingress.3132284652.protocol": "-1",
+                            "ingress.3132284652.security_groups.#": "0",
+                            "ingress.3132284652.self": "false",
+                            "ingress.3132284652.to_port": "0",
+                            "ingress.482069346.cidr_blocks.#": "1",
+                            "ingress.482069346.cidr_blocks.0": "0.0.0.0/0",
+                            "ingress.482069346.description": "",
+                            "ingress.482069346.from_port": "0",
+                            "ingress.482069346.ipv6_cidr_blocks.#": "0",
+                            "ingress.482069346.prefix_list_ids.#": "0",
+                            "ingress.482069346.protocol": "-1",
+                            "ingress.482069346.security_groups.#": "0",
+                            "ingress.482069346.self": "false",
+                            "ingress.482069346.to_port": "0",
+                            "name": "kubernetes",
+                            "owner_id": "777171359344",
+                            "revoke_rules_on_delete": "false",
+                            "tags.%": "2",
+                            "tags.Name": "kubernetes",
+                            "tags.Owner": "Kubernetes",
+                            "vpc_id": "vpc-05e0ecb5f8d08b870"
+                        },
+                        "meta": {
+                            "e2bfb730-ecaa-11e6-8f88-34363bc7c4c0": {
+                                "create": 600000000000,
+                                "delete": 600000000000
+                            },
+                            "schema_version": "1"
+                        },
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": "provider.aws"
+                },
+                "aws_subnet.private.0": {
+                    "type": "aws_subnet",
+                    "depends_on": [
+                        "aws_vpc.kubernetes"
+                    ],
+                    "primary": {
+                        "id": "subnet-02aaeedb3a697870d",
+                        "attributes": {
+                            "arn": "arn:aws:ec2:eu-west-1:777171359344:subnet/subnet-02aaeedb3a697870d",
+                            "assign_ipv6_address_on_creation": "false",
+                            "availability_zone": "eu-west-1a",
+                            "cidr_block": "10.0.4.0/24",
+                            "id": "subnet-02aaeedb3a697870d",
+                            "map_public_ip_on_launch": "false",
+                            "tags.%": "2",
+                            "tags.Name": "kubernetes-private",
+                            "tags.Owner": "Kubernetes",
+                            "vpc_id": "vpc-05e0ecb5f8d08b870"
+                        },
+                        "meta": {
+                            "e2bfb730-ecaa-11e6-8f88-34363bc7c4c0": {
+                                "create": 600000000000,
+                                "delete": 600000000000
+                            },
+                            "schema_version": "1"
+                        },
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": "provider.aws"
+                },
+                "aws_subnet.private.1": {
+                    "type": "aws_subnet",
+                    "depends_on": [
+                        "aws_vpc.kubernetes"
+                    ],
+                    "primary": {
+                        "id": "subnet-0983509ad4b66d783",
+                        "attributes": {
+                            "arn": "arn:aws:ec2:eu-west-1:777171359344:subnet/subnet-0983509ad4b66d783",
+                            "assign_ipv6_address_on_creation": "false",
+                            "availability_zone": "eu-west-1b",
+                            "cidr_block": "10.0.5.0/24",
+                            "id": "subnet-0983509ad4b66d783",
+                            "map_public_ip_on_launch": "false",
+                            "tags.%": "2",
+                            "tags.Name": "kubernetes-private",
+                            "tags.Owner": "Kubernetes",
+                            "vpc_id": "vpc-05e0ecb5f8d08b870"
+                        },
+                        "meta": {
+                            "e2bfb730-ecaa-11e6-8f88-34363bc7c4c0": {
+                                "create": 600000000000,
+                                "delete": 600000000000
+                            },
+                            "schema_version": "1"
+                        },
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": "provider.aws"
+                },
+                "aws_subnet.private.2": {
+                    "type": "aws_subnet",
+                    "depends_on": [
+                        "aws_vpc.kubernetes"
+                    ],
+                    "primary": {
+                        "id": "subnet-0531b4ef74afaad3f",
+                        "attributes": {
+                            "arn": "arn:aws:ec2:eu-west-1:777171359344:subnet/subnet-0531b4ef74afaad3f",
+                            "assign_ipv6_address_on_creation": "false",
+                            "availability_zone": "eu-west-1c",
+                            "cidr_block": "10.0.6.0/24",
+                            "id": "subnet-0531b4ef74afaad3f",
+                            "map_public_ip_on_launch": "false",
+                            "tags.%": "2",
+                            "tags.Name": "kubernetes-private",
+                            "tags.Owner": "Kubernetes",
+                            "vpc_id": "vpc-05e0ecb5f8d08b870"
+                        },
+                        "meta": {
+                            "e2bfb730-ecaa-11e6-8f88-34363bc7c4c0": {
+                                "create": 600000000000,
+                                "delete": 600000000000
+                            },
+                            "schema_version": "1"
+                        },
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": "provider.aws"
+                },
+                "aws_subnet.public.0": {
+                    "type": "aws_subnet",
+                    "depends_on": [
+                        "aws_vpc.kubernetes"
+                    ],
+                    "primary": {
+                        "id": "subnet-076d0ee92c56367a3",
+                        "attributes": {
+                            "arn": "arn:aws:ec2:eu-west-1:777171359344:subnet/subnet-076d0ee92c56367a3",
+                            "assign_ipv6_address_on_creation": "false",
+                            "availability_zone": "eu-west-1a",
+                            "cidr_block": "10.0.1.0/24",
+                            "id": "subnet-076d0ee92c56367a3",
+                            "map_public_ip_on_launch": "false",
+                            "tags.%": "2",
+                            "tags.Name": "kubernetes-public",
+                            "tags.Owner": "Kubernetes",
+                            "vpc_id": "vpc-05e0ecb5f8d08b870"
+                        },
+                        "meta": {
+                            "e2bfb730-ecaa-11e6-8f88-34363bc7c4c0": {
+                                "create": 600000000000,
+                                "delete": 600000000000
+                            },
+                            "schema_version": "1"
+                        },
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": "provider.aws"
+                },
+                "aws_subnet.public.1": {
+                    "type": "aws_subnet",
+                    "depends_on": [
+                        "aws_vpc.kubernetes"
+                    ],
+                    "primary": {
+                        "id": "subnet-06b96e084c4e08d5f",
+                        "attributes": {
+                            "arn": "arn:aws:ec2:eu-west-1:777171359344:subnet/subnet-06b96e084c4e08d5f",
+                            "assign_ipv6_address_on_creation": "false",
+                            "availability_zone": "eu-west-1b",
+                            "cidr_block": "10.0.2.0/24",
+                            "id": "subnet-06b96e084c4e08d5f",
+                            "map_public_ip_on_launch": "false",
+                            "tags.%": "2",
+                            "tags.Name": "kubernetes-public",
+                            "tags.Owner": "Kubernetes",
+                            "vpc_id": "vpc-05e0ecb5f8d08b870"
+                        },
+                        "meta": {
+                            "e2bfb730-ecaa-11e6-8f88-34363bc7c4c0": {
+                                "create": 600000000000,
+                                "delete": 600000000000
+                            },
+                            "schema_version": "1"
+                        },
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": "provider.aws"
+                },
+                "aws_subnet.public.2": {
+                    "type": "aws_subnet",
+                    "depends_on": [
+                        "aws_vpc.kubernetes"
+                    ],
+                    "primary": {
+                        "id": "subnet-010d64bf98cf83752",
+                        "attributes": {
+                            "arn": "arn:aws:ec2:eu-west-1:777171359344:subnet/subnet-010d64bf98cf83752",
+                            "assign_ipv6_address_on_creation": "false",
+                            "availability_zone": "eu-west-1c",
+                            "cidr_block": "10.0.3.0/24",
+                            "id": "subnet-010d64bf98cf83752",
+                            "map_public_ip_on_launch": "false",
+                            "tags.%": "2",
+                            "tags.Name": "kubernetes-public",
+                            "tags.Owner": "Kubernetes",
+                            "vpc_id": "vpc-05e0ecb5f8d08b870"
+                        },
+                        "meta": {
+                            "e2bfb730-ecaa-11e6-8f88-34363bc7c4c0": {
+                                "create": 600000000000,
+                                "delete": 600000000000
+                            },
+                            "schema_version": "1"
+                        },
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": "provider.aws"
+                },
+                "aws_vpc.kubernetes": {
+                    "type": "aws_vpc",
+                    "depends_on": [],
+                    "primary": {
+                        "id": "vpc-05e0ecb5f8d08b870",
+                        "attributes": {
+                            "arn": "arn:aws:ec2:eu-west-1:777171359344:vpc/vpc-05e0ecb5f8d08b870",
+                            "assign_generated_ipv6_cidr_block": "false",
+                            "cidr_block": "10.0.0.0/16",
+                            "default_network_acl_id": "acl-0641856fa31abe6f6",
+                            "default_route_table_id": "rtb-0fd0d2ff52c24a157",
+                            "default_security_group_id": "sg-08f37a87fd7fe19d6",
+                            "dhcp_options_id": "dopt-051903089401aef92",
+                            "enable_classiclink": "false",
+                            "enable_classiclink_dns_support": "false",
+                            "enable_dns_hostnames": "true",
+                            "enable_dns_support": "true",
+                            "id": "vpc-05e0ecb5f8d08b870",
+                            "instance_tenancy": "default",
+                            "main_route_table_id": "rtb-0fd0d2ff52c24a157",
+                            "tags.%": "2",
+                            "tags.Name": "kubernetes-staging",
+                            "tags.Owner": "Kubernetes"
+                        },
+                        "meta": {
+                            "schema_version": "1"
+                        },
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": "provider.aws"
+                },
+                "aws_vpc_dhcp_options.dns_resolver": {
+                    "type": "aws_vpc_dhcp_options",
+                    "depends_on": [],
+                    "primary": {
+                        "id": "dopt-051903089401aef92",
+                        "attributes": {
+                            "domain_name": "eu-west-1.compute.internal",
+                            "domain_name_servers.#": "1",
+                            "domain_name_servers.0": "AmazonProvidedDNS",
+                            "id": "dopt-051903089401aef92",
+                            "tags.%": "2",
+                            "tags.Name": "kubernetes-staging",
+                            "tags.Owner": "Kubernetes"
+                        },
+                        "meta": {},
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": "provider.aws"
+                },
+                "aws_vpc_dhcp_options_association.dns_resolver": {
+                    "type": "aws_vpc_dhcp_options_association",
+                    "depends_on": [
+                        "aws_vpc.kubernetes",
+                        "aws_vpc_dhcp_options.dns_resolver"
+                    ],
+                    "primary": {
+                        "id": "dopt-051903089401aef92-vpc-05e0ecb5f8d08b870",
+                        "attributes": {
+                            "dhcp_options_id": "dopt-051903089401aef92",
+                            "id": "dopt-051903089401aef92-vpc-05e0ecb5f8d08b870",
+                            "vpc_id": "vpc-05e0ecb5f8d08b870"
+                        },
+                        "meta": {},
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": "provider.aws"
+                },
+                "data.aws_subnet_ids.private": {
+                    "type": "aws_subnet_ids",
+                    "depends_on": [
+                        "aws_vpc.kubernetes"
+                    ],
+                    "primary": {
+                        "id": "vpc-05e0ecb5f8d08b870",
+                        "attributes": {
+                            "id": "vpc-05e0ecb5f8d08b870",
+                            "ids.#": "3",
+                            "ids.1498910460": "subnet-0983509ad4b66d783",
+                            "ids.1679364600": "subnet-02aaeedb3a697870d",
+                            "ids.2066940354": "subnet-0531b4ef74afaad3f",
+                            "tags.%": "1",
+                            "tags.Name": "kubernetes-private",
+                            "vpc_id": "vpc-05e0ecb5f8d08b870"
+                        },
+                        "meta": {},
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": "provider.aws"
+                },
+                "data.aws_subnet_ids.public": {
+                    "type": "aws_subnet_ids",
+                    "depends_on": [
+                        "aws_vpc.kubernetes"
+                    ],
+                    "primary": {
+                        "id": "vpc-05e0ecb5f8d08b870",
+                        "attributes": {
+                            "id": "vpc-05e0ecb5f8d08b870",
+                            "ids.#": "3",
+                            "ids.3451170161": "subnet-076d0ee92c56367a3",
+                            "ids.3793906612": "subnet-06b96e084c4e08d5f",
+                            "ids.4119649613": "subnet-010d64bf98cf83752",
+                            "tags.%": "1",
+                            "tags.Name": "kubernetes-public",
+                            "vpc_id": "vpc-05e0ecb5f8d08b870"
+                        },
+                        "meta": {},
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": "provider.aws"
+                },
+                "data.template_file.certificates": {
+                    "type": "template_file",
+                    "depends_on": [
+                        "aws_instance.host-egress"
+                    ],
+                    "primary": {
+                        "id": "3a1d2cea05dfb597172151988d3c90742ebe28e8d199f2c69a006cf27314e7b5",
+                        "attributes": {
+                            "id": "3a1d2cea05dfb597172151988d3c90742ebe28e8d199f2c69a006cf27314e7b5",
+                            "rendered": "{\n  \"CN\": \"kubernetes\",\n  \"hosts\": [\n    \"pegress.enekofb.org\",\n    \"127.0.0.1\"\n  ],\n  \"key\": {\n    \"algo\": \"rsa\",\n    \"size\": 2048\n  },\n  \"names\": [\n    {\n      \"C\": \"UK\",\n      \"L\": \"London\",\n      \"O\": \"Eneko\",\n      \"OU\": \"Cluster\"\n    }\n  ]\n}\n",
+                            "template": "{\n  \"CN\": \"kubernetes\",\n  \"hosts\": [\n    \"pegress.enekofb.org\",\n    \"127.0.0.1\"\n  ],\n  \"key\": {\n    \"algo\": \"rsa\",\n    \"size\": 2048\n  },\n  \"names\": [\n    {\n      \"C\": \"UK\",\n      \"L\": \"London\",\n      \"O\": \"Eneko\",\n      \"OU\": \"Cluster\"\n    }\n  ]\n}\n",
+                            "vars.%": "1",
+                            "vars.pegress_ip": "ip-10-0-1-140.eu-west-1.compute.internal"
+                        },
+                        "meta": {},
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": "provider.template"
+                },
+                "data.template_file.policy-json": {
+                    "type": "template_file",
+                    "depends_on": [],
+                    "primary": {
+                        "id": "125e22783f1a047e32cfbe75032bb00b80a408508a3a0a2b596497a032fe8d2a",
+                        "attributes": {
+                            "id": "125e22783f1a047e32cfbe75032bb00b80a408508a3a0a2b596497a032fe8d2a",
+                            "rendered": "{\n    \"Version\": \"2012-10-17\",\n    \"Statement\": [\n        {\n            \"Effect\": \"Allow\",\n            \"Action\": [\n                \"ec2:*\",\n                \"elasticloadbalancing:*\",\n                \"ecr:GetAuthorizationToken\",\n                \"ecr:BatchCheckLayerAvailability\",\n                \"ecr:GetDownloadUrlForLayer\",\n                \"ecr:GetRepositoryPolicy\",\n                \"ecr:DescribeRepositories\",\n                \"ecr:ListImages\",\n                \"ecr:BatchGetImage\",\n                \"route53:GetHostedZone\",\n                \"route53:ListHostedZones\",\n                \"route53:ListHostedZonesByName\",\n                \"route53:ChangeResourceRecordSets\",\n                \"route53:ListResourceRecordSets\",\n                \"route53:GetChange\"\n                ],\n            \"Resource\": \"*\"\n        }\n    ]\n}\n",
+                            "template": "{\n    \"Version\": \"2012-10-17\",\n    \"Statement\": [\n        {\n            \"Effect\": \"Allow\",\n            \"Action\": [\n                \"ec2:*\",\n                \"elasticloadbalancing:*\",\n                \"ecr:GetAuthorizationToken\",\n                \"ecr:BatchCheckLayerAvailability\",\n                \"ecr:GetDownloadUrlForLayer\",\n                \"ecr:GetRepositoryPolicy\",\n                \"ecr:DescribeRepositories\",\n                \"ecr:ListImages\",\n                \"ecr:BatchGetImage\",\n                \"route53:GetHostedZone\",\n                \"route53:ListHostedZones\",\n                \"route53:ListHostedZonesByName\",\n                \"route53:ChangeResourceRecordSets\",\n                \"route53:ListResourceRecordSets\",\n                \"route53:GetChange\"\n                ],\n            \"Resource\": \"*\"\n        }\n    ]\n}\n"
+                        },
+                        "meta": {},
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": "provider.template"
+                },
+                "null_resource.certificates": {
+                    "type": "null_resource",
+                    "depends_on": [
+                        "data.template_file.certificates"
+                    ],
+                    "primary": {
+                        "id": "3113779997718045282",
+                        "attributes": {
+                            "id": "3113779997718045282",
+                            "triggers.%": "1",
+                            "triggers.template_rendered": "{\n  \"CN\": \"kubernetes\",\n  \"hosts\": [\n    \"pegress.enekofb.org\",\n    \"127.0.0.1\"\n  ],\n  \"key\": {\n    \"algo\": \"rsa\",\n    \"size\": 2048\n  },\n  \"names\": [\n    {\n      \"C\": \"UK\",\n      \"L\": \"London\",\n      \"O\": \"Eneko\",\n      \"OU\": \"Cluster\"\n    }\n  ]\n}\n"
+                        },
+                        "meta": {},
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": "provider.null"
+                }
+            },
+            "depends_on": []
+        }
+    ]
+}
+

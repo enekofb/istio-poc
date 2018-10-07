@@ -12,7 +12,6 @@ variable "aws_instance_type" {
   default     = "t2.medium"
 }
 
-
 variable "ssh_public_key" {
   description = "Path to the pulic part of SSH key which should be used for the instance"
   default     = "~/.ssh/id_rsa.pub"
@@ -32,6 +31,29 @@ variable vpc_name {
   default = "kubernetes"
 }
 
+variable vpc_cidr {
+  default = "10.0.0.0/16"
+}
+
+variable "public-subnet-cidrs" {
+  type = "list"
+  default = ["10.0.1.0/24","10.0.2.0/24","10.0.3.0/24"]
+}
+
+variable "private-subnet-cidrs" {
+  type = "list"
+  default = ["10.0.4.0/24","10.0.5.0/24","10.0.6.0/24"]
+}
+
+variable "azs-count" {
+  default = "3"
+}
+
+variable "azs" {
+  type = "list"
+  default = ["eu-west-1a","eu-west-1b","eu-west-1c"]
+}
+
 variable owner {
   default = "Kubernetes"
 }
@@ -49,10 +71,9 @@ variable zone {
   default = "eu-west-1a"
 }
 
-variable vpc_cidr {
-  default = "10.43.0.0/16"
+variable kubernetes_pod_cidr {
+  default = "192.168.0.0/16"
 }
 
-variable kubernetes_pod_cidr {
-  default = "10.200.0.0/16"
+variable "dns_name" {
 }

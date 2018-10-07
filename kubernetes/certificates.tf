@@ -1,19 +1,23 @@
-resource "aws_acm_certificate" "default" {
-  domain_name       = "pegress.enekofb.org"
-  validation_method = "DNS"
-}
+#########################
+## Generate certificates
+#########################
 
-resource "aws_route53_record" "validation" {
-  name    = "${aws_acm_certificate.default.domain_validation_options.0.resource_record_name}"
-  type    = "${aws_acm_certificate.default.domain_validation_options.0.resource_record_type}"
-  zone_id = "${aws_route53_zone.external.zone_id}"
-  records = ["${aws_acm_certificate.default.domain_validation_options.0.resource_record_value}"]
-  ttl     = "60"
+# Generate Certificates
+data "template_file" "certificates" {
+    template = "${file("${path.module}/template/kubernetes-csr.json")}"
+    vars {
+      pegress_ip = "${aws_instance.host-egress.private_ip}"
+      pegress_ip = "${aws_instance.host-egress.private_dns}"
+    }
 }
-
-resource "aws_acm_certificate_validation" "default" {
-  certificate_arn = "${aws_acm_certificate.default.arn}"
-  validation_record_fqdns = [
-    "${aws_route53_record.validation.fqdn}",
-  ]
+resource "null_resource" "certificates" {
+  triggers {
+    template_rendered = "${ data.template_file.certificates.rendered }"
+  }
+  provisioner "local-exec" {
+    command = "echo '${ data.template_file.certificates.rendered }' > cert/kubernetes-csr.json"
+  }
+  provisioner "local-exec" {
+    command = "cd cert; cfssl gencert -initca ca-csr.json | cfssljson -bare ca; cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=kubernetes kubernetes-csr.json | cfssljson -bare kubernetes"
+  }
 }

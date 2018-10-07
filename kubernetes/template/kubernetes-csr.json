@@ -1,0 +1,19 @@
+{
+  "CN": "kubernetes",
+  "hosts": [
+    "pegress.enekofb.org",
+    "127.0.0.1"
+  ],
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "UK",
+      "L": "London",
+      "O": "Eneko",
+      "OU": "Cluster"
+    }
+  ]
+}

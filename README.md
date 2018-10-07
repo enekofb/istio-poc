@@ -16,16 +16,33 @@
 
 - This scenario does not tend to be production-ready but a scenario where to do simple experiments.
 
+- Access the application with `curl -vk https://a3f3897f9ca6f11e8a57102c7a1afe79-1940278466.eu-west-1.elb.amazonaws.com` (staging environment)
+
 # Provision VPC  
 
 Terraform has been used to provision a VPC and the EC2 instance hosting the kube cluster. The following 
 snippet specifies how to provisions the infrastructure via Terraform
 
+for **staging** environment
+
 ````
 export AWS_PROFILE=enekofb
 cd $istio-poc/kubernetes
 terraform init --upgrade
-terraform apply
+terraform workspace select staging
+terraform plan -out=plan.tfplan -input=false -var-file=t-staging.tfvars
+terraform apply plan.tfplan
+````
+
+for **production** environment
+
+````
+export AWS_PROFILE=enekofb
+cd $istio-poc/kubernetes
+terraform init --upgrade
+terraform workspace select production
+terraform plan -out=plan.tfplan -input=false -var-file=t-prod.tfvars
+terraform apply plan.tfplan
 ````
 
 as a result 
@@ -37,11 +54,13 @@ ssh_user = core
 
 - By using Terraform Workspaces is direct to get different environments based on the same [configuration](https://www.terraform.io/docs/state/workspaces.html)   
 
-```
-    terraform workspace create production 
-    terraform workspace select staging
-```
+_VPC features and limitations_
 
+1. Private / public subnet type
+2. 3 azs provisioned per subnet type
+3. Kubernetes host set in public subnet (per simplicity). A bastion could have been added ... then it would have gone to private subnet.
+4. No bastion host.
+ 
 # Provision Kubernetes
 
 0. Copy the scripts into the host via scp `scp scripts/* core@18.202.130.41:/home/core`
@@ -161,7 +180,7 @@ core@ip-10-16-129-204 ~ $ curl 10.109.120.254
 check that the service is externally reachable via AWS ELB  
 
 ```
-➜  kubernetes git:(master) ✗ curl http://a414308f7c8f111e8873a0220346b082-2022439982.eu-west-1.elb.amazonaws.com
+➜  kubernetes git:(master) ✗ curl https://a3f3897f9ca6f11e8a57102c7a1afe79-1940278466.eu-west-1.elb.amazonaws.com 
 ```
 
 # Scenario acceptance 

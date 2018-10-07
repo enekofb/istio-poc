@@ -33,41 +33,74 @@ resource "aws_vpc_dhcp_options_association" "dns_resolver" {
   dhcp_options_id = "${aws_vpc_dhcp_options.dns_resolver.id}"
 }
 
+resource "aws_internet_gateway" "igw" {
+  vpc_id = "${aws_vpc.kubernetes.id}"
+  tags {
+    Name = "Internet Gateway"
+    Owner = "${var.owner}"
+  }
+}
+
+resource "aws_eip" "ngw-eip" {
+  vpc      = true
+
+}
+
+
+resource "aws_nat_gateway" "ngw" {
+  allocation_id = "${aws_eip.ngw-eip.id}"
+  subnet_id     = "${aws_subnet.public.0.id}"
+
+  tags {
+    Name = "Nat Gateway"
+    Owner = "${var.owner}"
+  }
+
+}
+
 ############
 ## Subnets
 ############
 
-# Subnet (public)
-resource "aws_subnet" "kubernetes" {
+resource "aws_subnet" "public" {
+  count = "${var.azs-count}"
   vpc_id = "${aws_vpc.kubernetes.id}"
-  cidr_block = "${var.vpc_cidr}"
-  availability_zone = "${var.zone}"
+  cidr_block = "${element(var.public-subnet-cidrs, count.index)}"
+  availability_zone = "${element(var.azs, count.index)}"
 
-  tags {
-    Name = "kubernetes"
+
+  tags  {
+    Name = "kubernetes-public"
     Owner = "${var.owner}"
   }
 }
 
-resource "aws_internet_gateway" "gw" {
+resource "aws_subnet" "private" {
+  count = "${var.azs-count}"
   vpc_id = "${aws_vpc.kubernetes.id}"
-  tags {
-    Name = "kubernetes"
+  cidr_block = "${element(var.private-subnet-cidrs, count.index)}"
+  availability_zone = "${element(var.azs, count.index)}"
+
+
+  tags  {
+    Name = "kubernetes-private"
     Owner = "${var.owner}"
   }
 }
+
 
 ############
 ## Routing
 ############
 
-resource "aws_route_table" "kubernetes" {
+
+resource "aws_route_table" "public" {
   vpc_id = "${aws_vpc.kubernetes.id}"
 
   # Default route through Internet Gateway
   route {
     cidr_block = "0.0.0.0/0"
-    gateway_id = "${aws_internet_gateway.gw.id}"
+    gateway_id = "${aws_internet_gateway.igw.id}"
   }
 
   tags {
@@ -76,9 +109,48 @@ resource "aws_route_table" "kubernetes" {
   }
 }
 
-resource "aws_route_table_association" "kubernetes" {
-  subnet_id = "${aws_subnet.kubernetes.id}"
-  route_table_id = "${aws_route_table.kubernetes.id}"
+data "aws_subnet_ids" "private" {
+  vpc_id = "${aws_vpc.kubernetes.id}"
+  tags {
+    Name = "kubernetes-private"
+  }
+}
+
+data "aws_subnet_ids" "public" {
+  vpc_id = "${aws_vpc.kubernetes.id}"
+  tags {
+    Name = "kubernetes-public"
+  }
+}
+
+resource "aws_route_table_association" "public" {
+  count = "${var.azs-count}"
+
+  subnet_id = "${element(data.aws_subnet_ids.public.ids, count.index)}"
+  route_table_id = "${aws_route_table.public.id}"
+}
+
+
+resource "aws_route_table" "private" {
+  vpc_id = "${aws_vpc.kubernetes.id}"
+
+  # Default route through Nat Gateway
+  route {
+    cidr_block = "0.0.0.0/0"
+    nat_gateway_id = "${aws_nat_gateway.ngw.id}"
+  }
+
+  tags {
+    Name = "kubernetes"
+    Owner = "${var.owner}"
+  }
+}
+
+resource "aws_route_table_association" "private" {
+  count = "${var.azs-count}"
+
+  subnet_id = "${element(data.aws_subnet_ids.private.ids, count.index)}"
+  route_table_id = "${aws_route_table.private.id}"
 }
 
 
@@ -135,8 +207,6 @@ resource "aws_security_group" "kubernetes" {
     Name = "kubernetes"
   }
 }
-
-
 
 
 #####
@@ -206,14 +276,13 @@ resource "aws_eip" "host-egress" {
 }
 
 resource "aws_instance" "host-egress" {
-  # Instance type - any of the c4 should do for now
   instance_type = "${var.aws_instance_type}"
 
   ami = "${var.ami_image_id}"
 
   key_name = "${aws_key_pair.host-egress-keypair.key_name}"
 
-  subnet_id = "${aws_subnet.kubernetes.id}"
+  subnet_id = "${aws_subnet.public.0.id}"
 
   associate_public_ip_address = true
 
@@ -246,12 +315,12 @@ resource "aws_eip_association" "host-egress-assoc" {
 }
 
 resource "aws_route53_zone" "external" {
-  name = "enekofb.org"
+  name = "${var.dns_name}"
 }
 
-resource "aws_route53_record" "pegress" {
-  name    = "pegress.enekofb.org"
-  type    = "CNAME"
-  zone_id = "${aws_route53_zone.external.zone_id}"
-  ttl     = "60"
-}
+//resource "aws_route53_record" "pegress" {
+//  name    = "pegress.${var.dns_name}"
+//  type    = "CNAME"
+//  zone_id = "${aws_route53_zone.external.zone_id}"
+//  ttl     = "60"
+//}

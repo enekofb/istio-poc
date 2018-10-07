@@ -131,11 +131,10 @@ metadata:
     app: pegress-alpine-istio
   annotations:
     service.beta.kubernetes.io/aws-load-balancer-backend-protocol: http
-    service.beta.kubernetes.io/aws-load-balancer-ssl-cert: 	arn:aws:acm:eu-west-1:777171359344:certificate/e53693cd-1b67-4eea-a581-76b2ac7146da
-    service.beta.kubernetes.io/aws-load-balancer-ssl-ports: "https"
+    service.beta.kubernetes.io/aws-load-balancer-ssl-cert: 	arn:aws:iam::777171359344:server-certificate/kubernetes-cert
 spec:
   ports:
-  - port: 80
+  - port: 443
     targetPort: 8080
     name: http
   selector:
